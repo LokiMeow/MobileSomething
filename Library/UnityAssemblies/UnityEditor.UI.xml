@@ -4,5 +4,8 @@
 		<name>UnityEditor.UI</name>
 	</assembly>
 	<members>
+		<member name="T:UnityEditor.UI.TextEditor">
+			<summary></summary>
+		</member>
 	</members>
 </doc>

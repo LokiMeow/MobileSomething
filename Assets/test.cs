@@ -47,23 +47,7 @@ public class test : MonoBehaviour
                 transform.GetComponent<Animation>().Play();
 
                 running = true;
-                transform.Translate(transform.TransformDirection(0, 0, -3*Time.deltaTime));
-            }
-
-            if(Input.GetTouch(0).phase==TouchPhase.Ended)
-            {
-                if(!moving&& touchTime<=0.5f)
-                {
-                    transform.GetComponent<Animation>().clip = attack.clip;
-                    transform.GetComponent<Animation>().Play();
-                }
-                touchTime = 0;
-                moving = false;
-                if(running)
-                {
-                    transform.position = startPosion;
-                }
-                running = false;
+                transform.Translate(0, 0, 3*Time.deltaTime);
             }
 
             if (Input.GetTouch(0).phase == TouchPhase.Moved)
@@ -71,9 +55,25 @@ public class test : MonoBehaviour
                 moving = true;
                 x -= Input.GetAxis("Mouse X") * 5;
                 y -= Input.GetAxis("Mouse Y") * 2.4f;
+
+                transform.rotation = Quaternion.Euler(y, x, 0);
             }
 
-            transform.rotation = Quaternion.Euler(y, x, 0);
+            if (Input.GetTouch(0).phase == TouchPhase.Ended)
+            {
+                if (!moving && touchTime <= 0.5f)
+                {
+                    transform.GetComponent<Animation>().clip = attack.clip;
+                    transform.GetComponent<Animation>().Play();
+                }
+                touchTime = 0;
+                moving = false;
+                if (running)
+                {
+                    transform.position = startPosion;
+                }
+                running = false;
+            }
 
             
 
