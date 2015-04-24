@@ -4,5 +4,8 @@
 		<name>UnityEditor.iOS.Extensions</name>
 	</assembly>
 	<members>
+		<member name="T:UnityEditor.iOS.DeviceType">
+			<summary></summary>
+		</member>
 	</members>
 </doc>

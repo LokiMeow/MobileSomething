@@ -65,12 +65,16 @@ public class test : MonoBehaviour
             {
                 if (!moving && touchTime <= 0.5f)
                 {
-                    transform.GetComponent<Animation>().clip = attack.clip;
-                    transform.GetComponent<Animation>().Play();
-                    transform.FindChild("fx_fire_ball_bb").gameObject.active = true;
+                    if(!TapButton)
+                    {
+                        transform.GetComponent<Animation>().clip = attack.clip;
+                        transform.GetComponent<Animation>().Play();
+
+                        Invoke("attackFire", 0.5f);
+                    }
                 }
                 touchTime = 0;
-                moving = false;
+
                 if (running)
                 {
                     transform.position = startPosion;
@@ -78,6 +82,8 @@ public class test : MonoBehaviour
                 running = false;
 
                 transform.FindChild("cloud").gameObject.active = false;
+
+                TapButton = false;
             }
 
         }
@@ -100,10 +106,14 @@ public class test : MonoBehaviour
                 move = fingerPos[0].x >= fingerPos[1].x ? fingerDeltapos[0].x : fingerDeltapos[1].x;
                 move += (fingerPos[0].y >= fingerPos[1].y ? fingerDeltapos[0].y : fingerDeltapos[1].y);
 
-                Camera.main.transform.Translate(0, 0, 2*move*Time.deltaTime);
+                Camera.main.transform.Translate(0, 0, 3*move*Time.deltaTime);
             }
         }
         
+        if(Input.touchCount==0)
+        {
+            moving = false;
+        }
 
         if(!transform.GetComponent<Animation>().isPlaying)
         {
@@ -113,9 +123,14 @@ public class test : MonoBehaviour
 
     void idleMode()
     {
-        transform.FindChild("fx_fire_ball_bb").gameObject.active = false;
         transform.GetComponent<Animation>().clip = idle.clip;
         transform.GetComponent<Animation>().Play();
+    }
+
+    void attackFire()
+    {
+        transform.FindChild("fx_fire_ball_bb").GetComponent<ParticleSystem>().Emit(1);
+        transform.FindChild("Afterburner").GetComponent<ParticleSystem>().Play();
     }
 
     enum PlayMode
@@ -126,12 +141,16 @@ public class test : MonoBehaviour
 
     PlayMode playMode=PlayMode.Play;
 
+    bool TapButton;
+
    void OnGUI()
     {
+        GUI.backgroundColor = Color.magenta;
         GUI.skin.button.fontSize = (int)(Screen.width * 0.05f);
         string button = playMode == PlayMode.Play ? "暂停" : "播放";
        if(GUI.Button(new Rect(0,0,Screen.width*0.2f,Screen.width*0.2f),button))
        {
+           TapButton = true;
            if(playMode==PlayMode.Play)
            {
                Camera.main.GetComponent<AudioSource>().Pause();
