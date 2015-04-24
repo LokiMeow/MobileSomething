@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Assets\Elf\Script\Elf_Manager.cs" />
     <Compile Include="Assets\Elf\Script\Manager.cs" />
+    <Compile Include="Assets\StaticParticle.cs" />
     <Compile Include="Assets\background.cs" />
     <Compile Include="Assets\test.cs" />
   </ItemGroup>

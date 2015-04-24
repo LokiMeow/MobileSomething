@@ -46,6 +46,8 @@ public class test : MonoBehaviour
                 transform.GetComponent<Animation>().clip = run.clip;
                 transform.GetComponent<Animation>().Play();
 
+                transform.FindChild("cloud").gameObject.active = true;
+
                 running = true;
                 transform.Translate(0, 0, 3*Time.deltaTime);
             }
@@ -65,6 +67,7 @@ public class test : MonoBehaviour
                 {
                     transform.GetComponent<Animation>().clip = attack.clip;
                     transform.GetComponent<Animation>().Play();
+                    transform.FindChild("fx_fire_ball_bb").gameObject.active = true;
                 }
                 touchTime = 0;
                 moving = false;
@@ -73,23 +76,10 @@ public class test : MonoBehaviour
                     transform.position = startPosion;
                 }
                 running = false;
+
+                transform.FindChild("cloud").gameObject.active = false;
             }
 
-            
-
-            //if (Input.GetTouch(0).phase == TouchPhase.Stationary)
-            //{
-            //    if(Input.touches[0].deltaTime<0.5f)
-            //    {
-            //        transform.GetComponent<Animation>().clip = attack.clip;
-            //        transform.GetComponent<Animation>().Play();
-            //    }
-            //    if(Input.touches[0].deltaTime>0.5f)
-            //    {
-            //        transform.GetComponent<Animation>().clip = run.clip;
-            //        transform.GetComponent<Animation>().Play();
-            //    }
-            //}
         }
         else if(Input.touchCount>1)
         {
@@ -110,7 +100,7 @@ public class test : MonoBehaviour
                 move = fingerPos[0].x >= fingerPos[1].x ? fingerDeltapos[0].x : fingerDeltapos[1].x;
                 move += (fingerPos[0].y >= fingerPos[1].y ? fingerDeltapos[0].y : fingerDeltapos[1].y);
 
-                Camera.main.transform.Translate(0, 0, move*Time.deltaTime);
+                Camera.main.transform.Translate(0, 0, 2*move*Time.deltaTime);
             }
         }
         
@@ -123,16 +113,32 @@ public class test : MonoBehaviour
 
     void idleMode()
     {
+        transform.FindChild("fx_fire_ball_bb").gameObject.active = false;
         transform.GetComponent<Animation>().clip = idle.clip;
         transform.GetComponent<Animation>().Play();
     }
 
-    //void OnGUI()
-    //{
-    //   if( GUI.Button(new Rect(10, 10, 100, 30), "L"))
-    //   {
-    //       transform.GetComponent<Animation>().clip = run.clip;
-    //       transform.GetComponent<Animation>().Play();
-    //   }
-    //}
+    enum PlayMode
+    {
+        Pause=0,
+        Play=1
+    }
+
+    PlayMode playMode=PlayMode.Play;
+
+   void OnGUI()
+    {
+        GUI.skin.button.fontSize = (int)(Screen.width * 0.05f);
+        string button = playMode == PlayMode.Play ? "暂停" : "播放";
+       if(GUI.Button(new Rect(0,0,Screen.width*0.2f,Screen.width*0.2f),button))
+       {
+           if(playMode==PlayMode.Play)
+           {
+               Camera.main.GetComponent<AudioSource>().Pause();
+           }
+           else
+               Camera.main.GetComponent<AudioSource>().Play();
+           playMode = (PlayMode)Mathf.Abs((int)playMode - 1);
+       }
+    }
 }
