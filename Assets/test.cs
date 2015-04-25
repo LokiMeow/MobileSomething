@@ -9,8 +9,16 @@ public class test : MonoBehaviour
     public Animation attack;
     public Animation skill;
     public Animation run;
+    Animation animation;
     Vector3 startPosion;
     Quaternion startRoation;
+    float touchTime = 0;
+    bool moving = false;
+    bool running = false;
+    float fireTime;
+    float fireTimer=0;
+    ParticleSystem fireBall;
+    ParticleSystem fireRay;
     
     // Use this for initialization
     void Start()
@@ -18,22 +26,30 @@ public class test : MonoBehaviour
         x = transform.eulerAngles.y;
         y = transform.eulerAngles.x;
 
-        transform.GetComponent<Animation>().AddClip(idle.clip,"idle");
-        transform.GetComponent<Animation>().AddClip(attack.clip, "attack");
-        transform.GetComponent<Animation>().AddClip(skill.clip, "skill");
-        transform.GetComponent<Animation>().AddClip(run.clip, "run");
+        animation = transform.GetComponent<Animation>();
+
+        animation.AddClip(idle.clip,"idle");
+        animation.AddClip(attack.clip, "attack");
+        animation.AddClip(skill.clip, "skill");
+        animation.AddClip(run.clip, "run");
 
         Input.multiTouchEnabled = true;
 
         startPosion = transform.position;
         startRoation = transform.rotation;
+
+        fireBall=transform.FindChild("fx_fire_ball_bb").GetComponent<ParticleSystem>();
+        fireRay = transform.FindChild("Afterburner").GetComponent<ParticleSystem>();
+        fireTime = fireBall.startLifetime;
     }
-    float touchTime=0;
-    bool moving = false;
-    bool running = false;
+   
     // Update is called once per frame
     void Update()
     {
+        if(fireTimer>0)
+        {
+            fireTimer -= Time.deltaTime;
+        }
         if (Input.touchCount == 1)
         {
             if (moving==false&& Input.GetTouch(0).phase == TouchPhase.Stationary)
@@ -43,8 +59,8 @@ public class test : MonoBehaviour
 
             if(touchTime>0.5f)
             {
-                transform.GetComponent<Animation>().clip = run.clip;
-                transform.GetComponent<Animation>().Play();
+                animation.clip = run.clip;
+                animation.Play();
 
                 transform.FindChild("cloud").gameObject.active = true;
 
@@ -52,7 +68,7 @@ public class test : MonoBehaviour
                 transform.Translate(0, 0, 3*Time.deltaTime);
             }
 
-            if (Input.GetTouch(0).phase == TouchPhase.Moved)
+            if (Input.GetTouch(0).phase == TouchPhase.Moved&&fireTimer<=0)
             {
                 moving = true;
                 x -= Input.GetAxis("Mouse X") * 5;
@@ -65,10 +81,13 @@ public class test : MonoBehaviour
             {
                 if (!moving && touchTime <= 0.5f)
                 {
-                    if(!TapButton)
+                    if(!tapButton&&fireTimer<=0)
                     {
-                        transform.GetComponent<Animation>().clip = attack.clip;
-                        transform.GetComponent<Animation>().Play();
+                        fireTimer=fireTime;
+
+                        animation.Stop();
+                        animation.clip = attack.clip;
+                        animation.Play();
 
                         Invoke("attackFire", 0.5f);
                     }
@@ -77,13 +96,15 @@ public class test : MonoBehaviour
 
                 if (running)
                 {
+                    animation.Stop();
                     transform.position = startPosion;
+                    transform.rotation = startRoation;
                 }
                 running = false;
 
                 transform.FindChild("cloud").gameObject.active = false;
 
-                TapButton = false;
+                tapButton = false;
             }
 
         }
@@ -115,7 +136,7 @@ public class test : MonoBehaviour
             moving = false;
         }
 
-        if(!transform.GetComponent<Animation>().isPlaying)
+        if(!animation.isPlaying)
         {
             Invoke("idleMode", 0.2f);
         }
@@ -123,14 +144,14 @@ public class test : MonoBehaviour
 
     void idleMode()
     {
-        transform.GetComponent<Animation>().clip = idle.clip;
-        transform.GetComponent<Animation>().Play();
+        animation.clip = idle.clip;
+        animation.Play();
     }
 
     void attackFire()
     {
-        transform.FindChild("fx_fire_ball_bb").GetComponent<ParticleSystem>().Emit(1);
-        transform.FindChild("Afterburner").GetComponent<ParticleSystem>().Play();
+        fireBall.Emit(1);
+        fireRay.Play();
     }
 
     enum PlayMode
@@ -141,7 +162,7 @@ public class test : MonoBehaviour
 
     PlayMode playMode=PlayMode.Play;
 
-    bool TapButton;
+    bool tapButton;
 
    void OnGUI()
     {
@@ -150,7 +171,7 @@ public class test : MonoBehaviour
         string button = playMode == PlayMode.Play ? "暂停" : "播放";
        if(GUI.Button(new Rect(0,0,Screen.width*0.2f,Screen.width*0.2f),button))
        {
-           TapButton = true;
+           tapButton = true;
            if(playMode==PlayMode.Play)
            {
                Camera.main.GetComponent<AudioSource>().Pause();
