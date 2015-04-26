@@ -8,8 +8,8 @@ public class background : MonoBehaviour {
     float height = 1262;
 	void Start () {
         float rate = width / height;
-        if(Screen.width/Screen.height>rate)
-            transform.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.width*rate);
+        if((float)Screen.width/(float)Screen.height>rate)
+            transform.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.width/rate);
         else
             transform.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.height*rate, Screen.height);
 	}
